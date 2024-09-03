@@ -16,7 +16,7 @@ app = faust.App('app1',
 v = "2"
 # Define topics
 
-stock_price_topic = app.topic(f'stock-price-1-{v}', value_type=StockPrice)  # Define topic
+stock_price_topic = app.topic(f'stock-price-2-{v}', value_type=StockPrice)  # Define topic
 stocks_topic = app.topic(f'stocks-1-{v}', value_type=Stock)
 stocks_table = app.Table(f'stocks-table-1-{v}', partitions=1, default=None, value_type=Stock)
 

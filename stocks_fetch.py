@@ -4,7 +4,7 @@ from datetime import datetime
 import pytz
 import yfinance as yf
 
-from data import StockPrice
+from stocks_data import StockPrice
 
 logger = logging.getLogger("stocksflow").getChild(__name__)
 

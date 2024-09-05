@@ -1,29 +1,19 @@
-# App configuration
 import logging
-
 import faust
-
-from data import StockPrice, Stock
+from stocks_models import StockPrice
 
 logger = logging.getLogger('stocksflow').getChild(__name__)
 
-app = faust.App('app1',
+app_name = "stocksflow-1"
+app = faust.App(
+                app_name,
                 broker='kafka://127.0.0.1:9092',
                 web_port=6071,
                 # consumer_auto_offset_reset='latest',
-                )
+                config_source={
+                    "datadir": f"storage/{app_name}",
+                })
 
-v = "2"
 # Define topics
-
-stock_price_topic = app.topic(f'stock-price-2-{v}', value_type=StockPrice)  # Define topic
-stocks_topic = app.topic(f'stocks-1-{v}', value_type=Stock)
-stocks_table = app.Table(f'stocks-table-1-{v}', partitions=1, default=None, value_type=Stock)
-
-
-@app.agent(stocks_topic)
-async def timelines_table_builder_processor(stocks_stream: faust.Stream):
-    async for stock in stocks_stream:
-        logger.info(f"Adding stock to stocks table: {stock}")
-        stock: Stock
-        stocks_table[stock.symbol] = stock
+v = "2"
+stock_price_topic = app.topic(f'stock-price-2-{v}', value_type=StockPrice)

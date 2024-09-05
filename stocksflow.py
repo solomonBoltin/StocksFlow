@@ -1,13 +1,18 @@
 import asyncio
 import logging
 
-from data import StockPrice
+from stocks_models import StockPrice
 from stocks_data import StocksData
 import stocks_fetch
-from stocks_faust import app, stock_price_topic, stocks_table
+from stocks_faust import app
 
 logger = logging.getLogger('stocksflow')
-stocks_data = StocksData(stock_price_topic, stocks_table)
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
+app.logger.setLevel(logging.DEBUG)
+app.logger.addHandler(logging.StreamHandler())
+
+stocks_data = StocksData()
 
 loop = asyncio.get_event_loop()
 
@@ -55,25 +60,18 @@ class StocksFlow:
     @classmethod
     async def run(cls):
         logger.info("Starting App")
-        app.loop = loop
-        await app.start()
         cls.reset_prices_task = loop.create_task(cls.reset_stock_prices())
         await cls.monitor_stocks(cls.MONITORING_INTERVAL_SEC)
 
     @classmethod
     async def stop(cls):
-        await app.stop()
+        # await app.stop()
         await cls.reset_prices_task.cancel()
         await loop.shutdown_asyncgens()
 
 
 if __name__ == "__main__":
     try:
-        app.logger.setLevel(logging.DEBUG)
-        logger.setLevel(logging.INFO)
-        app.logger.addHandler(logging.StreamHandler())
-        logger.addHandler(logging.StreamHandler())
-
         loop.run_until_complete(StocksFlow.run())
     except Exception as e:
         logger.error(f"Error in StocksFlow: {e}")
